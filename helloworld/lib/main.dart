@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 void main() {
   runApp(const MyApp());
@@ -49,6 +50,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  String _type = "偶数";
 
   void _incrementCounter() {
     setState(() {
@@ -58,59 +60,30 @@ class _MyHomePageState extends State<MyHomePage> {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _counter++;
+      if (_counter % 2 == 0) {
+        _type = "偶数";
+      } else {
+        _type = "奇数";
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: const [Icon(Icons.create), Text("初めてのタイトル")],
-        ),
+        title: Text(widget.title),
       ),
-      body: Column(children: [
-        const Text("Hello Wrold"),
-        const Text("Hello World"),
-        TextButton(
-            onPressed: () => {
-                  print(
-                    "ボタンが押されたよ",
-                  )
-                },
-            child: const Text("テキストボタン")),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: const [
-          Icon(
-            Icons.favorite,
-            color: Colors.pink,
-            size: 24.0,
-          ),
-          Icon(
-            Icons.audiotrack,
-            color: Colors.green,
-            size: 30.0,
-          ),
-          Icon(
-            Icons.beach_access,
-            color: Colors.blue,
-            size: 36.0,
-          ),
-        ]),
-      ]),
+      body: Center(
+          child: Icon(
+        FontAwesomeIcons.gift,
+        color: Colors.teal,
+      )),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => {print("押したね？")},
-        child: const Icon(Icons.timer),
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
       ),
-      drawer: const Drawer(
-        child: Center(child: Text("Drawer")),
-      ),
-      endDrawer: const Drawer(child: Center(child: Text("EndDrawer"))),
     );
   }
 }
