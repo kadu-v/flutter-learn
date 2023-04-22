@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'dart:math';
+import 'package:flutter/material.dart';
 
 void main() {
   runApp(const MyApp());
@@ -48,24 +50,45 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  String _type = "偶数";
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation _animation;
 
-  void _incrementCounter() {
+  // 再生
+  _forward() async {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-      if (_counter % 2 == 0) {
-        _type = "偶数";
-      } else {
-        _type = "奇数";
-      }
+      _animationController.forward();
     });
+  }
+
+  // 停止
+  _stop() async {
+    setState(() {
+      _animationController.stop();
+    });
+  }
+
+  // 逆再生
+  _reverse() async {
+    setState(() {
+      _animationController.reverse();
+    });
+  }
+
+  // 生成
+  @override
+  void initState() {
+    super.initState();
+    _animationController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    _animation = _animationController.drive(Tween(begin: 0.0, end: 2.0 * pi));
+  }
+
+  // 破棄
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -75,15 +98,24 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-          child: Icon(
-        FontAwesomeIcons.gift,
-        color: Colors.teal,
-      )),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        child: AnimatedBuilder(
+          animation: _animation,
+          builder: (context, _) {
+            return Transform.rotate(
+                angle: _animation.value,
+                child: const Icon(Icons.cached, size: 100));
+          },
+        ),
       ),
+      // 再生、停止、逆再生のボタン
+      floatingActionButton:
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        FloatingActionButton(
+            onPressed: _forward, child: const Icon(Icons.arrow_forward)),
+        FloatingActionButton(onPressed: _stop, child: const Icon(Icons.pause)),
+        FloatingActionButton(
+            onPressed: _reverse, child: const Icon(Icons.arrow_back)),
+      ]),
     );
   }
 }
