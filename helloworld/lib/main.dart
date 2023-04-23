@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'test_page1.dart';
 import 'test_page2.dart';
 import 'test_page3.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:video_player/video_player.dart';
 
 void main() {
   runApp(const MyApp());
@@ -58,41 +61,61 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-// ok
 class _MyHomePageState extends State<MyHomePage> {
-  late PageController _pageController;
-  int _selectedIndex = 0;
+  VideoPlayerController? _controller;
+  final imagePicker = ImagePicker();
 
-  // ページの配列
-  final _pages = [
-    TestPage1(),
-    TestPage2(),
-    TestPage3(),
-  ];
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController(initialPage: _selectedIndex);
+  // カメラから動画を取得するメソッド
+  Future getVideoFromCamera() async {
+    XFile? pickedFile = await imagePicker.pickVideo(source: ImageSource.camera);
+    if (pickedFile != null) {
+      _controller = VideoPlayerController.file(File(pickedFile.path));
+      _controller!.initialize().then((_) {
+        setState(() {
+          _controller!.play();
+        });
+      });
+    }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _pageController.dispose();
-  }
-
-  void _onPageChanged(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  // ギャラリーから動画を取得するメソッド
+  Future getVideoFromGarally() async {
+    XFile? pickedFile =
+        await imagePicker.pickVideo(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      _controller = VideoPlayerController.file(File(pickedFile.path));
+      _controller!.initialize().then((_) {
+        setState(() {
+          _controller!.play();
+        });
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: PageView(
-            controller: _pageController,
-            onPageChanged: _onPageChanged,
-            children: _pages));
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        body: Center(
+            // 取得した動画を表示(ない場合はメッセージ)
+            child: _controller == null
+                ? Text(
+                    '動画を選択してください',
+                    style: Theme.of(context).textTheme.headline4,
+                  )
+                : VideoPlayer(_controller!)),
+        floatingActionButton:
+            Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          // カメラから取得するボタン
+          FloatingActionButton(
+              onPressed: getVideoFromCamera,
+              child: const Icon(Icons.video_call)),
+          // ギャラリーから取得するボタン
+          FloatingActionButton(
+              onPressed: getVideoFromGarally,
+              child: const Icon(Icons.movie_creation))
+        ]));
   }
 }
