@@ -6,6 +6,7 @@ import 'test_page1.dart';
 import 'test_page2.dart';
 import 'test_page3.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 void main() {
   runApp(const MyApp());
@@ -60,43 +61,46 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _userAccelerometerValues = "";
-  String _gyroscopeValues = "";
+  FlutterTts flutterTts = FlutterTts();
+  final String _speakText = "くぁｗせｄｒｆｔｇｙふじこ";
+
+  // 読み上げ用
+  Future<void> _speak() async {
+    await flutterTts.setLanguage("ja-JP"); // 言語
+    await flutterTts.setSpeechRate(1.0); // 速度
+    await flutterTts.setVolume(1.0); // 音量
+    await flutterTts.setPitch(1.0); // ピッチ
+    await flutterTts.speak(_speakText); //読み上げ
+  }
+
+  // 停止用
+  Future<void> _stop() async {
+    await flutterTts.stop();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(_userAccelerometerValues,
-                style: Theme.of(context).textTheme.titleLarge),
-            Text(_gyroscopeValues,
-                style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              _speakText,
+              style: Theme.of(context).textTheme.headline4,
+            ),
           ],
-        ));
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    userAccelerometerEvents.listen(
-      (UserAccelerometerEvent event) {
-        setState(() {
-          _userAccelerometerValues =
-              "加速度センサー\n${event.x}\n${event.y}\n${event.z}";
-        });
-      },
-    );
-    gyroscopeEvents.listen(
-      (GyroscopeEvent event) {
-        setState(() {
-          _gyroscopeValues = "ジャイロセンサー\n${event.x}\n${event.y}\n${event.z}";
-        });
-      },
+        ),
+      ),
+      floatingActionButton:
+          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+        FloatingActionButton(
+            onPressed: _speak, child: const Icon(Icons.play_arrow)),
+        FloatingActionButton(onPressed: _stop, child: const Icon(Icons.stop))
+      ]),
     );
   }
 }
